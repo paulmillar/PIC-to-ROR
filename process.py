@@ -18,6 +18,10 @@ import sys
 import json
 import cordis
 import wikidata
+import datetime
+import git
+
+# pip install gitpython
 
 if len(sys.argv) != 2:
     print("Need argument: CSV projects file (e.g., \"data/organization.csv\")", file=sys.stderr)
@@ -53,7 +57,13 @@ print("    {} skipped because CORDIS has no EU VAT information".format(skip_no_v
 print("    {} skipped because Wikidata has insufficient data".format(skip_wikidata_entry_missing))
 print("    {} mapped".format(len(mapping)))
 
-json_object = json.dumps(mapping, indent = 4)
+output={}
+output["generated"] = datetime.datetime.now().astimezone().replace(microsecond=0).isoformat()
+repo = git.repo.Repo('./')
+output["generator"] = repo.git.describe()
+output["mapping"] = mapping
+
+json_object = json.dumps(output, indent = 4)
 with open('pic-to-ror.json', "wt") as output:
     output.write(json_object)
 print("Mapped organisations written as \"pic-to-ror.json\".")
