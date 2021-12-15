@@ -26,10 +26,7 @@ def get_results(endpoint_url, query):
     return sparql.query().convert()
 
 def vat_to_ror():
-    print("Querying WikiData to discover EU VAT numbers")
     results = get_results(endpoint_url, query)
-
-    print("Found {} ROR organisation with their corresponding EU VAT number".format(len(results["results"]["bindings"])))
 
     vatToRor={}
     for result in results["results"]["bindings"]:
