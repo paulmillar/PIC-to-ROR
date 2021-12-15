@@ -46,7 +46,7 @@ There are two main reasons why this repository exists:
 
 The goal is to provide a database of PIC to ROR values.  The latest
 results are available [from this
-link](https://paulmillar.github.io/ROR/pic-to-ror.json).
+link](https://paulmillar.github.io/cordis/pic-to-ror.json).
 
 Therefore, although the code should be runnable by anyone, the
 intention is not that people need to run this code to obtain the list
