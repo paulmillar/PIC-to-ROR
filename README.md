@@ -54,30 +54,39 @@ of corresponding identifiers.
 
 # Contents
 
-This repository contains several files.
+This repository contains several files.  Here is a list of the most
+important ones and what is their function.
 
 <dl>
-<dt>`bin/acquire-data`</dt>
+<dt><tt>bin/acquire-data</tt></dt>
 
 <dd>Acquire CORDIS and ROR data dumps.  This caches data, so the same
 function may be used to check for any updates.</dd>
 
-<dt>`process.py`</dt>
+<dt><tt>process.py</tt></dt>
 
 <dd>Build a mapping of PIC to ROR identifiers and store the result as
-the file `pic-to-ror.json`</dd>
+the file <tt>pic-to-ror.json</tt></dd>
 
-<dt>`print-cordis.py`</dt>
+<dt><tt>print-cordis.py</tt></dt>
 
-<dd>Parse the CORDIS `organization.csv` file from the data dump and
-print the results.</dd>
+<dd>Parse the CORDIS <tt>organization.csv</tt> file from the data dump
+and print the results.</dd>
 
-<dt>`print-wikidata.py`</dt>
+<dt><tt>print-wikidata.py</tt></dt>
 
 <dd>Query Wikidata for EU VAT number to ROR identifier mapping and
 print the result.</dd>
 </dl>
 
-You will need to run `bin/acquire-data` once, to obtain the necessary
-data.  Once you've done this, run `process.py` to generate the mapping
-file: `pic-to-ror.json`.
+# How to run
+
+You will need to run `bin/acquire-data` at least once, to obtain the
+CORDIS and ROR data dumps.
+
+You can rerun this command to check for any updates.  This is safe
+because the downloaded data is cached and the script checks to see if
+the cached copy is up-to-date before downloading it.
+
+Once you've have the CORDIS and ROR data dumps, run `process.py` to
+generate the mapping file: `pic-to-ror.json`.
