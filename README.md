@@ -1,3 +1,4 @@
+# Motivation
 
 A
 [PIC](https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/how-to-participate/participant-register)
@@ -50,3 +51,33 @@ Therefore, although the code should be runnable by anyone, the
 intention is not that people need to run this code to obtain the list
 of corresponding identifiers.
 
+
+# Contents
+
+This repository contains several files.
+
+<dl>
+<dt>`bin/acquire-data`</dt>
+
+<dd>Acquire CORDIS and ROR data dumps.  This caches data, so the same
+function may be used to check for any updates.</dd>
+
+<dt>`process.py`</dt>
+
+<dd>Build a mapping of PIC to ROR identifiers and store the result as
+the file `pic-to-ror.json`</dd>
+
+<dt>`print-cordis.py`</dt>
+
+<dd>Parse the CORDIS `organization.csv` file from the data dump and
+print the results.</dd>
+
+<dt>`print-wikidata.py`</dt>
+
+<dd>Query Wikidata for EU VAT number to ROR identifier mapping and
+print the result.</dd>
+</dl>
+
+You will need to run `bin/acquire-data` once, to obtain the necessary
+data.  Once you've done this, run `process.py` to generate the mapping
+file: `pic-to-ror.json`.
