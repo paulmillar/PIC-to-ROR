@@ -78,6 +78,13 @@ and print the results.</dd>
 
 <dd>Query Wikidata for EU VAT number to ROR identifier mapping and
 print the result.</dd>
+
+<dt><tt>scan-wikidata-for-orphans</tt></dt>
+
+<dd>This queries Wikidata for all organisations for which it has
+a corresponding ROR identifier and then compares those identifiers
+with those present in the ROR data dump.  This catches orphaned
+links.</dd>
 </dl>
 
 # How to run
