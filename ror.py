@@ -24,7 +24,7 @@ def parse_datadump(filename):
     """
     data={}
 
-    with open(sys.argv[1], newline='') as rorfile:
+    with open(filename, newline='') as rorfile:
         ror_data = json.load(rorfile)
         for org in ror_data:
             id = org["id"]
