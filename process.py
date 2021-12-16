@@ -119,6 +119,7 @@ output={}
 output["generated"] = datetime.datetime.now().astimezone().replace(microsecond=0).isoformat()
 repo = git.repo.Repo('./')
 output["generator"] = repo.git.describe()
+output["count"] = len(results)
 output["mapping"] = results
 
 json_object = json.dumps(output, indent = 4)
