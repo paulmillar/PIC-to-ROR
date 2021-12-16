@@ -16,10 +16,12 @@
 
 import sys
 import json
-import cordis
-import wikidata
 import datetime
 import git
+import cordis
+import wikidata
+import ror
+import validation
 
 # pip install gitpython
 
@@ -27,41 +29,97 @@ if len(sys.argv) != 2:
     print("Need argument: CSV projects file (e.g., \"data/organization.csv\")", file=sys.stderr)
     sys.exit(1)
 
-cordis_data = cordis.parse_organization(sys.argv[1])
+ror_data = ror.parse_datadump("data/ror-data.json") # FIXME make this configurable.
+print("Loaded {} organisations from ROR data dump".format(len(ror_data)))
 
+cordis_data = cordis.parse_organization(sys.argv[1])
 print("Loaded {} organisations from CORDIS data".format(len(cordis_data)))
 
-vat_to_ror = wikidata.vat_to_ror()
-print("Wikidata has {} organisations with EU VAT and ROR information".format(len(vat_to_ror)))
+wikidata_orgs_by_pic = wikidata.pic_to_ror()
+print("Wikidata has {} organisations with PIC and ROR information".format(len(wikidata_orgs_by_pic)))
+
+wikidata_orgs_by_vat = wikidata.vat_to_ror()
+print("Wikidata has {} organisations with EU VAT and ROR information".format(len(wikidata_orgs_by_vat)))
 
 skip_no_vat=0
 skip_wikidata_entry_missing=0
+found_by_pic=0
+found_by_vat=0
 
+#
+#  Build mapping from PIC to ROR
+#
 mapping={}
-for id in cordis_data:
-    metadata = cordis_data[id]
-    if "vat" not in metadata:
-        skip_no_vat+=1
+for pic in cordis_data:
+
+    # Wikidata already knows some mappings
+    if pic in wikidata_orgs_by_pic:
+        wikidata = wikidata_orgs_by_pic[pic]
+        mapping[pic] = {"ror": wikidata["ror"],
+                       "context": {
+                           "matched-by": "PIC",
+                           "source": "wikidata",
+                           "id": wikidata["id"]
+                       }}
+        found_by_pic += 1
         continue
 
-    vat = metadata["vat"]
+    metadata = cordis_data[pic]
 
-    if vat not in vat_to_ror:
-        skip_wikidata_entry_missing+=1
+    # Use EU VAT number to identify organisations without PIC
+    if "vat" in metadata:
+        vat = metadata["vat"]
+        if vat in wikidata_orgs_by_vat:
+            wikidata = wikidata_orgs_by_vat[vat]
+            mapping[pic] = {"ror": wikidata["ror"],
+                           "context": {
+                               "matched-by": "VAT",
+                               "source": "wikidata",
+                               "id": wikidata["id"]
+                           }}
+            found_by_vat += 1
+            continue
+
+    # TODO: try something else, match by name perhaps?
+
+
+#
+# Validate the results
+#
+
+# 1. remove inconsistent results
+to_remove = []
+for pic in mapping:
+    match = mapping[pic]
+    rorId = match["ror"]
+    if pic not in cordis_data:
+        print("Unknown PIC {}".format(pic))
+        to_remove.append(pic)
         continue
 
-    mapping[id] = vat_to_ror[vat]
+    if rorId not in ror_data:
+        print("Unknown ROR ID {} for match {}".format(
+              rorId, match["context"]))
+        to_remove.append(pic)
+        continue
+
+for pic in to_remove:
+    del mapping[pic]
+
+
+#
+# 2. Run validator
+#
+results = validation.validate(mapping, cordis_data, ror_data)
 
 print("Summary:")
-print("    {} skipped because CORDIS has no EU VAT information".format(skip_no_vat))
-print("    {} skipped because Wikidata has insufficient data".format(skip_wikidata_entry_missing))
-print("    {} mapped".format(len(mapping)))
+print("    {} Total mapped".format(len(results)))
 
 output={}
 output["generated"] = datetime.datetime.now().astimezone().replace(microsecond=0).isoformat()
 repo = git.repo.Repo('./')
 output["generator"] = repo.git.describe()
-output["mapping"] = mapping
+output["mapping"] = results
 
 json_object = json.dumps(output, indent = 4)
 with open('pic-to-ror.json', "wt") as output:

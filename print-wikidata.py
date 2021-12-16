@@ -19,6 +19,11 @@ import wikidata
 import json
 
 data = wikidata.vat_to_ror()
-
 json_object = json.dumps(data, indent = 4)
+print("VAT to ROR: {} organisations".format(len(data)))
+print(json_object)
+
+data = wikidata.pic_to_ror()
+json_object = json.dumps(data, indent = 4)
+print("PIC to ROR: {} organisations".format(len(data)))
 print(json_object)
